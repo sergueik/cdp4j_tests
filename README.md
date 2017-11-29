@@ -22,7 +22,7 @@ The project is in active development, so please bookmark and check for updates.
 ### Examples
 The following code fragments familiar to a Selenium developer are implemented on top of __CDP__ and demonstrated:
 
-* Iterating over and filtering of the set of elements returned, then perform further action with the specific members similar to Selenium `findElements`:
+* Iterate over and filter the set of elements, perform further action with specific members similar to Selenium `findElements`:
 ```java
 
 		Launcher launcher = new Launcher();
@@ -111,6 +111,75 @@ The following code fragments familiar to a Selenium developer are implemented on
 	protected void click(String selector) {
 		executeScript(session, "function() { this.click(); }", selector);
 	}
+```
+
+* Compute the XPath / Css Selector or other DOM attributes by executing some Javascript (possibly recursively) in the broser:
+```javascript
+cssSelectorOfElement = function(element) {
+	if (!(element instanceof Element))
+		return;
+	var path = [];
+	while (element.nodeType === Node.ELEMENT_NODE) {
+		var selector = element.nodeName.toLowerCase();
+		if (element.id) {
+			if (element.id.indexOf('-') > -1) {
+				selector += '[id="' + element.id + '"]';
+			} else {
+				selector += '#' + element.id;
+			}
+			path.unshift(selector);
+			break;
+		} else if (element.className) {
+			selector += '.' + element.className.replace(/^\s+/,'').replace(/\s+$/,'').replace(/\s+/g, '.');
+		} else {
+			var element_sibling = element;
+			var sibling_cnt = 1;
+			while (element_sibling = element_sibling.previousElementSibling) {
+				if (element_sibling.nodeName.toLowerCase() == selector)
+					sibling_cnt++;
+			}
+			if (sibling_cnt != 1)
+				selector += ':nth-of-type(' + sibling_cnt + ')';
+		}
+		path.unshift(selector);
+		element = element.parentNode;
+	}
+	return path.join(' > ');
+}
+```
+```java
+	protected String cssSelectorOfElement(String selectorOfElement) {
+		session.evaluate(getScriptContent("cssSelectorOfElement.js"));
+		return (String) executeScript("function() { return cssSelectorOfElement(this); }",
+				selectorOfElement);
+	}
+
+	protected static String getScriptContent(String scriptName) {
+		try {
+			final InputStream stream = BaseTest.class.getClassLoader()
+					.getResourceAsStream(scriptName);
+			final byte[] bytes = new byte[stream.available()];
+			stream.read(bytes);
+			// System.err.println("Loaded:\n" + new String(bytes, "UTF-8"));
+			return new String(bytes, "UTF-8");
+		} catch (IOException e) {
+			throw new RuntimeException("Cannot load file: " + scriptName);
+		}
+	}
+
+		String xpath = "//*[@id='nav']//a[contains(@href, 'support.html')]";
+		// Arrange
+		session.waitUntil(o -> isVisible(xpath), 1000, 100);
+		// Act
+		highlight(xpath, 1000);
+		String computedXPath = xpathOfElement(xpath);
+		String computedCssSelector = cssSelectorOfElement(xpath);
+		String computedText = textOfElement(xpath);
+		// Assert
+		Assert.assertEquals(computedXPath, "//nav[@id=\"nav\"]/ul/li[2]/a");
+		Assert.assertEquals(computedCssSelector,
+				"nav#nav > ul > li:nth-of-type(2) > a");
+		Assert.assertEquals(computedText, "Support");
 ```
 
 ### TODO

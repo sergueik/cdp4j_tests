@@ -32,7 +32,9 @@ public class HighlightTest extends BaseTest {
 		session.waitUntil(o -> o.matches(xpath), 1000, 100);
 		// Act
 		String pageTitle = session.getText(xpath);
+
 		// Assert
+		sleep(20000);
 		Assert.assertEquals(pageTitle, "WebFolder");
 	}
 
@@ -65,6 +67,33 @@ public class HighlightTest extends BaseTest {
 		String linkSupportComputedXPath = xpathOfElement(linkSupportXPath);
 		// Assert
 		Assert.assertEquals(linkSupportComputedXPath, "...");
+		*/
+	}
+
+	@Test(enabled = true)
+	public void testComputedSelectors() {
+
+		String xpath = "//*[@id='nav']//a[contains(@href, 'support.html')]";
+		// Arrange
+		session.waitUntil(o -> isVisible(xpath), 1000, 100);
+		// Act
+		String text = session.getText(xpath);
+		highlight(xpath, 1000);
+		String computedXPath = xpathOfElement(xpath);
+		String computedCssSelector = cssSelectorOfElement(xpath);
+		String computedText = textOfElement(xpath);
+		// Assert
+
+		Assert.assertEquals(text, "Support");
+		Assert.assertEquals(computedXPath, "//nav[@id=\"nav\"]/ul/li[2]/a");
+		Assert.assertEquals(computedCssSelector,
+				"nav#nav > ul > li:nth-of-type(2) > a");
+		Assert.assertEquals(computedText, "Support");
+
+		/*
+		System.err.println("xpath: " + xpathOfElement(xpath));
+		System.err.println("css: " + cssSelectorOfElement(xpath));
+		System.err.println("text: " + computedText);
 		*/
 	}
 

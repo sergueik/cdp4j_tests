@@ -141,24 +141,22 @@ public class BaseTest {
 						selectorOfElement));
 	}
 
-	// NOTE: broken
+	// NOTE: limited testing performed so far.
 	protected String xpathOfElement(String selectorOfElement) {
 		session.evaluate(getScriptContent("xpathOfElement.js"));
-		return (String) executeScript("return xpathOfElement(this)",
+		return (String) executeScript("function() { return xpathOfElement(this); }",
 				selectorOfElement);
 	}
 
-	// NOTE: broken
 	protected String cssSelectorOfElement(String selectorOfElement) {
 		session.evaluate(getScriptContent("cssSelectorOfElement.js"));
-		return (String) executeScript("return cssSelectorOfElement(this)",
+		return (String) executeScript("function() { return cssSelectorOfElement(this); }",
 				selectorOfElement);
 	}
 
-	// NOTE: broken
-	protected String altTextOfElement(String selectorOfElement) {
+	protected String textOfElement(String selectorOfElement) {
 		session.evaluate(getScriptContent("getText.js"));
-		return (String) executeScript("return getText(this)", selectorOfElement);
+		return (String) executeScript("function() { return getText(this);}", selectorOfElement);
 	}
 
 	protected static String getScriptContent(String scriptName) {
