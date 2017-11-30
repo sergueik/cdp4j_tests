@@ -87,34 +87,6 @@ public class SuvianTest extends BaseTest {
 				((String) session.getPropertyByObjectId(elementIds.get(0), "innerHTML"))
 						.equalsIgnoreCase("Click Here"));
 		// Act
-		highlight(xpath);
-		assertTrue(session.getText(xpath).equalsIgnoreCase("Click Here"));
-		session.click(xpath);
-		// Assert
-		try {
-			// Wait for validation page to load
-			assertTrue(session.waitUntil(
-					o -> o.getLocation().matches(".*/1.1link_validate.html$"), 1000,
-					100));
-		} catch (AssertionError e) {
-			System.err.println("Exception: " + e.toString());
-			verificationErrors.append(e.toString());
-		}
-		// NOTE: xpath change is not required when searching for the the first
-		// element
-		// Act
-		String xpath1 = String.format("%s[%d]", xpath, 1);
-		session.click(xpath1);
-		// Assert
-		try {
-			// Wait for validation page to load
-			assertTrue(session.waitUntil(
-					o -> o.getLocation().matches(".*/1.1link_validate.html$"), 1000,
-					100));
-		} catch (AssertionError e) {
-			System.err.println("Exception: " + e.toString());
-			verificationErrors.append(e.toString());
-		}
 		// Act
 		executeScript("function() { this.click(); }", xpath);
 		// Assert
@@ -125,4 +97,64 @@ public class SuvianTest extends BaseTest {
 		assertTrue(session.waitUntil(o -> o.getText(".intro-message")
 				.contains("Link Successfully clicked")));
 	}
+
+	@Test(enabled = true)
+	public void test5_2() {
+		// Arrange
+		session.navigate("http://suvian.in/selenium/1.5married_radio.html");
+
+		session.waitUntil(o -> o.matches(".container .row .intro-message h3 a"),
+				10000, 1000);
+		String formLocator = ".intro-header .container .row .col-lg-12 .intro-message form";
+		session.waitUntil(o -> o.matches(formLocator), 1000, 100);
+		assertThat(session.getObjectId(formLocator), notNullValue());
+		highlight(formLocator, 1000);
+		sleep(1000);
+		// get form element contents broken ?
+		// https://developer.mozilla.org/en-US/docs/Web/API/Element/outerHTML
+		String elementContents = session.getAttribute(formLocator, "outerHTML");
+		System.err.println("Form element contents: " + elementContents);
+		assertThat(elementContents, nullValue());
+
+		elementContents = (String) executeScript(
+				"function() { return this.outerHTML; }", formLocator);
+		System.err.println("Form element contents: " + elementContents);
+
+		// Parse the HTML looking for "yes" or "no" - depends on desired married
+		// status
+		String label = "no";
+
+		String line = new ArrayList<String>(
+				Arrays.asList(elementContents.split("<br/?>"))).stream()
+						.filter(o -> o.toLowerCase().indexOf(label) > -1).findFirst().get();
+		Matcher matcher = Pattern.compile("value=\\\"([^\"]*)\\\"").matcher(line);
+		String checkboxValue = null;
+		if (matcher.find()) {
+			checkboxValue = matcher.group(1);
+			System.err.println("checkbox value = " + checkboxValue);
+		} else {
+			System.err.println("checkbox value not found");
+		}
+		String checkBoxElementId = null;
+		String checkBoxElementSelector = String.format(
+				"%s input[name='married'][value='%s']", formLocator, checkboxValue);
+		if (checkboxValue != null) {
+			checkBoxElementId = session.getObjectId(checkBoxElementSelector);
+		}
+		// Act
+		assertThat(checkBoxElementId, notNullValue());
+		highlight(checkBoxElementSelector);
+		click(checkBoxElementSelector);
+		// Assert passes
+		assertThat(
+				session.getObjectId(
+						String.format("%s%s", checkBoxElementSelector, ":checked")),
+				notNullValue());
+		sleep(500);
+		// Assert fails
+		assertTrue(Boolean.parseBoolean(
+				session.getAttribute(checkBoxElementSelector, ":checked")));
+		sleep(500);
+	}
+
 }

@@ -1,6 +1,6 @@
 ### Info
 The [Chrome Devtools](https://github.com/ChromeDevTools/awesome-chrome-devtools)
- project 
+ project
  offers an alternative powerful set of API to manage te browser, and appears currently targeted primarily for Javascript developers.
   * [puppeteer online](https://try-puppeteer.appspot.com/)
   * [GoogleChrome/puppeteer](https://github.com/GoogleChrome/puppeteer)
@@ -181,12 +181,67 @@ cssSelectorOfElement = function(element) {
 				"nav#nav > ul > li:nth-of-type(2) > a");
 		Assert.assertEquals(computedText, "Support");
 ```
+* Finding the target element by applying `findElement(s)` to a certain element found earlier.
+```java
+		// Arrange
+		session.navigate("http://suvian.in/selenium/1.5married_radio.html");
+
+		String formLocator = ".intro-header .container .row .col-lg-12 .intro-message form";
+    // locate the form on the page
+		session.waitUntil(o -> o.matches(formLocator), 1000, 100);
+		assertThat(session.getObjectId(formLocator), notNullValue());
+		highlight(formLocator, 1000);
+		sleep(1000);
+
+    // get the HTML of the form element
+		elementContents = (String) executeScript(
+				"function() { return this.outerHTML; }", formLocator);
+
+		// Parse the HTML looking for "yes" or "no" - depends on desired married
+		// status
+		String label = "no";
+
+		String line = new ArrayList<String>(
+				Arrays.asList(elementContents.split("<br/?>"))).stream()
+						.filter(o -> o.toLowerCase().indexOf(label) > -1).findFirst().get();
+		Matcher matcher = Pattern.compile("value=\\\"([^\"]*)\\\"").matcher(line);
+		String checkboxValue = null;
+		if (matcher.find()) {
+			checkboxValue = matcher.group(1);
+			System.err.println("checkbox value = " + checkboxValue);
+		} else {
+			System.err.println("checkbox value not found");
+		}
+		String checkBoxElementId = null;
+    
+		// Act
+    // combine the selectors
+		String checkBoxElementSelector = String.format(
+				"%s input[name='married'][value='%s']", formLocator, checkboxValue);
+    checkBoxElementId = session.getObjectId(checkBoxElementSelector);
+		// Assert the checkbox is found
+		assertThat(checkBoxElementId, notNullValue());
+		highlight(checkBoxElementSelector);
+    // Act
+		click(checkBoxElementSelector);
+		// Assert that the checkbox gets into checked state (passes)
+		assertThat(
+				session.getObjectId(
+						String.format("%s%s", checkBoxElementSelector, ":checked")),
+				notNullValue());
+		sleep(500);
+		// Assert evaluate the checked semi attribute (fails, probably wrong sizzle)
+		assertTrue(Boolean.parseBoolean(
+				session.getAttribute(checkBoxElementSelector, ":checked")));
+		sleep(500);
+	}
+```
 
 ### TODO
 
 The following code fragments are yet unclear how to implement:
 
-* Finding the target element by applying `findElement(s)` to a certain element found earlier.
+
 * Alerts
 
 ### Author
