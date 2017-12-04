@@ -236,7 +236,54 @@ cssSelectorOfElement = function(element) {
 		sleep(500);
 	}
 ```
+* Collect page timings (also possible to have the same at page element level):
+```javascript
+// based on: https://github.com/addyosmani/timing.js/blob/master/timing.js
+// NOTE: not computing timings.loadTime, timings.domReadyTime  etc.
+(function(window) {
+  'use strict';
+  window.timing = window.timing || {
+    getTimes: function(opt) {
+      var performance = window.performance ||
+        window.webkitPerformance || window.msPerformance ||
+        window.mozPerformance;
 
+      if (performance === undefined) {
+        return '';
+      }
+      var timings = performance.timing || {};
+        return JSON.stringify(timings);
+    },
+
+    getNetwork: function(opt) {
+      var network = performance.getEntries() || {};
+        return JSON.stringify(network);
+    }
+  }
+})(typeof window !== 'undefined' ? window : {});
+```
+then
+```java
+	private static String baseURL = "https://www.priceline.com/";
+	private static int pageLoadTimeout = 5000;
+
+	@Test(enabled = true)
+	public void timingTest() throws Exception {
+
+		session.navigate(baseURL);
+		session.waitDocumentReady(pageLoadTimeout);
+
+		session.evaluate(getScriptContent("timing.js"));
+
+		String result = session.callFunction("window.timing.getTimes",
+				String.class);
+		if (result != null) {
+			System.err.println("result: " + result);
+		} else {
+			throw new RuntimeException("result is null");
+		}
+	}
+```
 ### TODO
 
 The following code fragments are yet unclear how to implement:
