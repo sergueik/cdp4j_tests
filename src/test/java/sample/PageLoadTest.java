@@ -68,7 +68,8 @@ public class PageLoadTest extends BaseTest {
 			Map<String, Double> data = getNetworkTimingMap(result);
 			Set<String> keys = data.keySet();
 			for (String key : keys) {
-				System.err.println(key + " = " + data.get(key));
+				System.err.println("key: " + getTruncated(key, 70));
+				System.err.println("value: " + data.get(key));
 			}
 		} catch (Exception e) {
 			throw new RuntimeException("result is not parseable: " + e.toString());
@@ -181,5 +182,10 @@ public class PageLoadTest extends BaseTest {
 			}
 		}
 		return pageObjectTimers;
+	}
+
+	private static String getTruncated(String input, int length) {
+		return (input.length() > length) ? input.substring(0, length - 10) + "..."
+				+ input.substring(input.length() - 11) : input;
 	}
 }
