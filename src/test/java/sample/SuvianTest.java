@@ -164,7 +164,8 @@ public class SuvianTest extends BaseTest {
 	public void test6_1() {
 
 		String attributeName = "for";
-		List<String> labels = new ArrayList<>(Arrays.asList("Singing", "Dancing"));
+		List<String> labels = new ArrayList<>(
+				Arrays.asList("Singing", "Dancing", "Sports"));
 
 		// Arrange
 		session.navigate("http://suvian.in/selenium/1.6checkbox.html")
@@ -190,17 +191,16 @@ public class SuvianTest extends BaseTest {
 		String formelementSelector = cssSelectorOfElement(formElementXPath);
 		String labelSelector = String.format("%s label[for]", formelementSelector);
 
-		List<String> inputElementIDs = session.getObjectIds(labelSelector).stream()
-				.filter(_objectID -> {
-					System.err.println(
-							"text: " + session.getPropertyByObjectId(_objectID, "innerHTML"));
-					System.err.println(
-							"HTML: " + session.getPropertyByObjectId(_objectID, "outerHTML"));
-					return (boolean) labels
-							.contains(session.getPropertyByObjectId(_objectID, "innerHTML"));
-				}).collect(Collectors.toList());
-		assertTrue(inputElementIDs.size() == labels.size());
-		Map<String, String> inputIDMap = inputElementIDs.stream()
+		List<String> inputIDList = session.getObjectIds(labelSelector).stream()
+				.filter(_objectID -> labels
+						.contains(session.getPropertyByObjectId(_objectID, "innerHTML")))
+				.collect(Collectors.toList());
+		// Assert
+		assertTrue(inputIDList.size() == labels.size());
+		Map<String, String> inputIDMap = inputIDList.stream()
+				// Example of debugging stream based case: using filter(o->{ print
+				// debugging info; return true; })
+				/*
 				.filter(_objectID -> {
 					System.err.println("input element id: " + _objectID);
 					System.err.println("input element text: "
@@ -222,6 +222,7 @@ public class SuvianTest extends BaseTest {
 					assertTrue(inputIndex > 0);
 					return true;
 				})
+				*/
 				.collect(Collectors.toMap(
 						_objectID -> (String) session.getPropertyByObjectId(_objectID,
 								"innerHTML"),
@@ -229,6 +230,7 @@ public class SuvianTest extends BaseTest {
 								(String) session.getPropertyByObjectId(_objectID, "outerHTML"),
 								attributeName)));
 		// collect objectID list using expicit CSS selector
+		// Act
 		List<String> checkboxObjectIDs = new ArrayList<>();
 		for (String hobby : labels) {
 			String inpuID = inputIDMap.get(hobby);
@@ -238,14 +240,16 @@ public class SuvianTest extends BaseTest {
 			// NOTE: formelementSelector is not needed, added for generality
 			checkboxObjectIDs.add(session.getObjectId(checkboxSelector));
 			// and check the checkbox
-			highlight(checkboxSelector);
 			session.focus(checkboxSelector).setChecked(checkboxSelector, true);
-			highlight(checkboxSelector);
 		}
-		sleep(10000);
+		sleep(500);
+		// Assert
+		List<String> checkedCheckBoxes = session.getObjectIds(":checked");
+		assertTrue(checkedCheckBoxes.size() == labels.size());
+		// System.err.println("# of checked checkboxes = " +
+		// checkedCheckBoxes.size());
 	}
 
-	// TODO: port the .net findMatch..
 	// NOTE: cannot use objectId with execScript("function() { return
 	// this.getAttribute('for')", <input>)
 	String finAttributeValue(String elementHML, String elementAttribute) {
