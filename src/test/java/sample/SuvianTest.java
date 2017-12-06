@@ -61,8 +61,6 @@ import java.util.regex.Pattern;
 public class SuvianTest extends BaseTest {
 
 	private static final StringBuffer verificationErrors = new StringBuffer();
-	private static Pattern pattern;
-	private static Matcher matcher;
 
 	@AfterMethod
 	public void AfterMethod(ITestResult result) {
@@ -161,12 +159,16 @@ public class SuvianTest extends BaseTest {
 		sleep(500);
 	}
 
+	// locate the input by its sibling label "for" input visible text
 	@Test(enabled = true)
 	public void test6_1() {
+
+		String attributeName = "for";
+		List<String> labels = new ArrayList<>(Arrays.asList("Singing", "Dancing"));
+
 		// Arrange
-		List<String> hobbies = new ArrayList<>(Arrays.asList("Singing", "Dancing"));
 		session.navigate("http://suvian.in/selenium/1.6checkbox.html")
-				.waitDocumentReady();
+				.waitDocumentReady(30000);
 
 		session.waitUntil(_session -> {
 			return (boolean) (_session
@@ -177,85 +179,88 @@ public class SuvianTest extends BaseTest {
 					.findFirst().get() != null);
 
 		});
-		// css selector
+		// use CSS selector
 		assertThat(session.getObjectId("input[id]"), notNullValue());
 		// Act
-		// convert to xpath
+		// switch to XPath to locate parent element
 		String formElementXPath = String.format("%s/..",
 				xpathOfElement("input[id]"));
 		assertThat(session.getObjectId(formElementXPath), notNullValue());
-		// convert to css selector
-		String labelSelector = String.format("%s label[for]",
-				cssSelectorOfElement(formElementXPath));
-
-		Pattern pattern = Pattern.compile(".*for=\"(.+)\".*",
-				Pattern.CASE_INSENSITIVE);
-		String propertyName = "for";
+		// convert to CSS selector again
+		String formelementSelector = cssSelectorOfElement(formElementXPath);
+		String labelSelector = String.format("%s label[for]", formelementSelector);
 
 		List<String> inputElementIDs = session.getObjectIds(labelSelector).stream()
-				.filter(o -> {
+				.filter(_objectID -> {
 					System.err.println(
-							"text: " + session.getPropertyByObjectId(o, "innerHTML"));
+							"text: " + session.getPropertyByObjectId(_objectID, "innerHTML"));
 					System.err.println(
-							"HTML: " + session.getPropertyByObjectId(o, "outerHTML"));
-					return (boolean) hobbies
-							.contains(session.getPropertyByObjectId(o, "innerHTML"));
+							"HTML: " + session.getPropertyByObjectId(_objectID, "outerHTML"));
+					return (boolean) labels
+							.contains(session.getPropertyByObjectId(_objectID, "innerHTML"));
 				}).collect(Collectors.toList());
-		assertTrue(inputElementIDs.size() == hobbies.size());
-		Map<String, String> inputMap = inputElementIDs.stream().filter(objectId -> {
-			System.err.println("input element id: " + objectId);
-			System.err.println("input element text: "
-					+ session.getPropertyByObjectId(objectId, "innerHTML"));
-			// NOTE: the "for" attribute is not getting returned in a
-			// getPropertyByObjectId API
-			String propertyValue1 = (String) session.getPropertyByObjectId(objectId,
-					propertyName);
-			System.err.println(String.format("input element \"%s\" attribute: \"%s\"",
-					propertyName, propertyValue1));
-			// cannot use objectId with execScript("function() { return
-			// this.getAttribute('for')", <input>)
-			String elementHML = (String) session.getPropertyByObjectId(objectId,
-					"outerHTML");
-			System.err.println("input element HTML: " + elementHML);
-			String propertyValue2 = finAttributeValue(elementHML, propertyName);
-			int inputIndex = Integer.parseInt(propertyValue2);
-			assertTrue(inputIndex > 0);
-			/*
-			Matcher matcher = pattern.matcher(elementHML);
-			int inputIndex = 0;
-			assertTrue(matcher.find());
-			inputIndex = Integer.parseInt(matcher.group(1).toString());
-			assertTrue(inputIndex > 0);
-			System.err.println(
-					String.format("input element \"%s\" attribute (computed): \"%d\"",
-							propertyName, inputIndex));
-			*/
-			return true;
-		}).collect(Collectors.toMap(
-				objectId -> (String) session.getPropertyByObjectId(objectId,
-						"innerHTML"),
-				objectId -> finAttributeValue(
-						(String) session.getPropertyByObjectId(objectId, "outerHTML"),
-						propertyName)));
-		List<String> checkboxIDs = new ArrayList<>();
-		for (String hobby : hobbies) {
-			String inpuID = inputMap.get(hobby);
-			System.err.println("finding: " + inpuID);
-			checkboxIDs.add(session.getObjectId(String.format("input#%s", inpuID)));
+		assertTrue(inputElementIDs.size() == labels.size());
+		Map<String, String> inputIDMap = inputElementIDs.stream()
+				.filter(_objectID -> {
+					System.err.println("input element id: " + _objectID);
+					System.err.println("input element text: "
+							+ session.getPropertyByObjectId(_objectID, "innerHTML"));
+					// NOTE: the "for" attribute is not getting returned in a
+					// getPropertyByObjectId API
+					String propertyValue1 = (String) session
+							.getPropertyByObjectId(_objectID, attributeName);
+					assertThat(propertyValue1, nullValue());
+					System.err
+							.println(String.format("input element \"%s\" attribute: \"%s\"",
+									attributeName, propertyValue1));
+					String elementHML = (String) session.getPropertyByObjectId(_objectID,
+							"outerHTML");
+					System.err.println("input element HTML: " + elementHML);
+					String propertyValue2 = finAttributeValue(elementHML, attributeName);
+					assertThat(propertyValue2, notNullValue());
+					int inputIndex = Integer.parseInt(propertyValue2);
+					assertTrue(inputIndex > 0);
+					return true;
+				})
+				.collect(Collectors.toMap(
+						_objectID -> (String) session.getPropertyByObjectId(_objectID,
+								"innerHTML"),
+						_objectID -> finAttributeValue(
+								(String) session.getPropertyByObjectId(_objectID, "outerHTML"),
+								attributeName)));
+		// collect objectID list using expicit CSS selector
+		List<String> checkboxObjectIDs = new ArrayList<>();
+		for (String hobby : labels) {
+			String inpuID = inputIDMap.get(hobby);
+			System.err.println("finding checkbox by id: " + inpuID);
+			String checkboxSelector = String.format("%s input#%s",
+					formelementSelector, inpuID);
+			// NOTE: formelementSelector is not needed, added for generality
+			checkboxObjectIDs.add(session.getObjectId(checkboxSelector));
+			// and check the checkbox
+			highlight(checkboxSelector);
+			session.focus(checkboxSelector).setChecked(checkboxSelector, true);
+			highlight(checkboxSelector);
 		}
-
+		sleep(10000);
 	}
 
-	// TODO: port .net findMatch..
+	// TODO: port the .net findMatch..
+	// NOTE: cannot use objectId with execScript("function() { return
+	// this.getAttribute('for')", <input>)
 	String finAttributeValue(String elementHML, String elementAttribute) {
 		String result = null;
 		Pattern pattern = Pattern.compile(
-				String.format(".*%s=\"(.+)\".*", elementAttribute),
+				String.format(".*%s=\"(.+)\".*",
+						elementAttribute.replaceAll("\r?\n", " ")),
 				Pattern.CASE_INSENSITIVE);
 		Matcher matcher = pattern.matcher(elementHML);
 		assertTrue(matcher.find());
-		result = matcher.group(1).toString();
+		try {
+			result = matcher.group(1).toString();
+		} catch (Exception e) {
+			// ignore
+		}
 		return result;
-
 	}
 }
