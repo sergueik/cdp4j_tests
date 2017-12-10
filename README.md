@@ -288,8 +288,9 @@ then
 
 The following code fragments are yet unclear how to implement:
 
-
 * Alerts
 
+### See also
+  * [stackoverflow](https://stackoverflow.com/questions/tagged/google-chrome-devtools)
 ### Author
 [Serguei Kouzmine](kouzmine_serguei@yahoo.com)

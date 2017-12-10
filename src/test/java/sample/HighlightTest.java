@@ -22,11 +22,12 @@ public class HighlightTest extends BaseTest {
 		super.beforeMethod(method);
 		assertThat(session, notNullValue());
 		session.navigate(baseURL).waitDocumentReady();
+		session.waitDocumentReady(5000);
 		System.err.println("url: " + session.getLocation());
 	}
 
-	@Test(enabled = false)
-	public void testBasicXPath() {
+	@Test(enabled = true)
+	public void basicXPathTest() {
 		String xpath = "/html/head/title";
 		// Arrange
 		session.waitUntil(o -> o.matches(xpath), 1000, 100);
@@ -38,8 +39,53 @@ public class HighlightTest extends BaseTest {
 		Assert.assertEquals(pageTitle, "WebFolder");
 	}
 
+	// this test uses session method to locate the link (verifies through text
+	// check)
+	// and then uses baseTest method to click on the target using Javascript
+	// snippet.
+	// The click is performed on the correct element - verified by checking the
+	// header of the destination page
+	@Test(enabled = true)
+	public void workingClickTest() {
+		String linkSelector = "#nav > ul > li:nth-child(2) > a";
+		String pageHeaderSelector = "body > article > h2";
+		// Arrange
+		session.waitUntil(o -> isVisible(linkSelector), 1000, 100);
+		// Act
+		Assert.assertEquals(session.getText(linkSelector), "Support");
+		highlight(linkSelector, 1000);
+		super.click(linkSelector);
+		session.waitUntil(o -> o.matches(pageHeaderSelector), 5000, 100);
+		// Assert
+		highlight(pageHeaderSelector, 1000);
+		sleep(1000);
+		highlight(pageHeaderSelector, 1000);
+		Assert.assertEquals(session.getText(pageHeaderSelector), "Support");
+	}
+
+	// this test uses session method to locate the link (verifies through text
+	// check)
+	// and then to click. The click is performed on the wrong element
+	// would fail: expected [Support] but found [Products]
 	@Test(enabled = false)
-	public void testBasicCSSselector() {
+	public void failingClickTest() {
+		String linkSelector = "#nav > ul > li:nth-child(2) > a";
+		String pageHeaderSelector = "body > article > h2";
+		// Arrange
+		session.waitUntil(o -> isVisible(linkSelector), 1000, 100);
+		// Act
+		Assert.assertEquals(session.getText(linkSelector), "Support");
+		highlight(linkSelector, 1000);
+		session.click(linkSelector);
+		session.waitUntil(o -> o.matches(pageHeaderSelector), 1000, 100);
+		// Assert
+		highlight(pageHeaderSelector, 1000);
+		sleep(1000);
+		Assert.assertEquals(session.getText(pageHeaderSelector), "Support");
+	}
+
+	@Test(enabled = true)
+	public void basicCSSTest() {
 		String cssSelector = "head > title";
 		// Arrange
 		session.waitUntil(o -> o.matches(cssSelector), 1000, 100);
@@ -50,8 +96,8 @@ public class HighlightTest extends BaseTest {
 
 	}
 
-	@Test(enabled = false)
-	public void testXPathContains() {
+	@Test(enabled = true)
+	public void xPathContainsTest() {
 
 		String xpath = "//*[@id='nav']//a[contains(@href, 'support.html')]";
 		// Arrange
@@ -71,7 +117,7 @@ public class HighlightTest extends BaseTest {
 	}
 
 	@Test(enabled = true)
-	public void testComputedSelectors() {
+	public void computedSelectorTest() {
 
 		String xpath = "//*[@id='nav']//a[contains(@href, 'support.html')]";
 		// Arrange
@@ -79,29 +125,26 @@ public class HighlightTest extends BaseTest {
 		// Act
 		String text = session.getText(xpath);
 		highlight(xpath, 1000);
-		String computedXPath = xpathOfElement(xpath);
-		String computedCssSelector = cssSelectorOfElement(xpath);
 		String computedText = textOfElement(xpath);
 		// Assert
-
-		Assert.assertEquals(text, "Support");
+		String computedXPath = xpathOfElement(xpath);
 		Assert.assertEquals(computedXPath, "//nav[@id=\"nav\"]/ul/li[2]/a");
-		Assert.assertEquals(computedCssSelector,
-				"nav#nav > ul > li:nth-of-type(2) > a");
-		Assert.assertEquals(computedText, "Support");
-
-		/*
 		System.err.println("xpath: " + xpathOfElement(xpath));
+		// Assert
+		String computedCSS = cssSelectorOfElement(xpath);
+		Assert.assertEquals(computedCSS, "nav#nav > ul > li:nth-of-type(2) > a");
 		System.err.println("css: " + cssSelectorOfElement(xpath));
+
+		// Assert
+		Assert.assertEquals(text, "Support");
+		Assert.assertEquals(computedText, "Support");
 		System.err.println("text: " + computedText);
-		*/
 	}
 
-	@Test(enabled = false)
+	@Test(enabled = true)
 	public void elementIteratorTest() {
 
 		String cssSelector = "#nav a";
-
 		// Arrange
 		session.waitUntil(o -> o.getObjectIds(cssSelector).size() > 0, 1000, 100);
 		// Act
@@ -119,8 +162,8 @@ public class HighlightTest extends BaseTest {
 				"About");
 	}
 
-	@Test(enabled = false)
-	public void testSiblingXPath() {
+	@Test(enabled = true)
+	public void siblingXPathTest() {
 
 		String xpath = "//*[@id='nav']//a[contains(@href, 'support.html')]/../following-sibling::li/a";
 		// Arrange
