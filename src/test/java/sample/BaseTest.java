@@ -11,6 +11,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 
 import io.webfolder.cdp.Launcher;
+import io.webfolder.cdp.exception.CommandException;
 import io.webfolder.cdp.session.Session;
 import io.webfolder.cdp.session.SessionFactory;
 import io.webfolder.cdp.type.runtime.CallFunctionOnResult;
@@ -30,15 +31,22 @@ public class BaseTest {
 	public void beforeClass() throws IOException {
 		Launcher launcher = new Launcher();
 		SessionFactory factory = launcher.launch();
-		session = factory.create();
-		// install extensions
-		session.installSizzle();
-		session.useSizzle();
-		session.clearCookies();
-		session.clearCache();
-		session.setUserAgent(
-				"Mozilla/5.0 (Windows NT 6.1) AppleWebKit/534.34 (KHTML, like Gecko) PhantomJS/1.9.7 Safari/534.34");
-		session.navigate(baseURL);
+		sleep(1000);
+		try {
+			session = factory.create();
+			sleep(1000);
+			// install extensions
+			session.installSizzle();
+			session.useSizzle();
+			session.clearCookies();
+			session.clearCache();
+			session.setUserAgent(
+					"Mozilla/5.0 (Windows NT 6.1) AppleWebKit/534.34 (KHTML, like Gecko) PhantomJS/1.9.7 Safari/534.34");
+			session.navigate(baseURL);
+		} catch (CommandException e) {
+			throw new RuntimeException(e);
+		}
+
 		System.err.println("Location:" + session.getLocation());
 	}
 
@@ -58,7 +66,12 @@ public class BaseTest {
 
 	@AfterMethod
 	public void afterMethod() {
-		session.navigate(baseURL);
+		session.navigate("about:blank");
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+
+		}
 	}
 
 	@AfterTest(alwaysRun = true)
@@ -96,14 +109,16 @@ public class BaseTest {
 
 	protected void highlight(String selectorOfElement, Session session,
 			long interval) {
-		String objectId = session.getObjectId(selectorOfElement);
-		Integer nodeId = session.getNodeId(selectorOfElement);
-		CallFunctionOnResult functionResult = null;
-		RemoteObject result = null;
-		executeScript("function() { this.style.border='3px solid yellow'; }",
+		executeScript(session,
+				"function() { this.style.border='3px solid yellow'; }",
 				selectorOfElement);
 		sleep(interval);
-		executeScript("function() { this.style.border=''; }", selectorOfElement);
+		executeScript(session, "function() { this.style.border=''; }",
+				selectorOfElement);
+	}
+
+	protected void clear(String selectorOfElement) {
+		executeScript("function() { this.value=''; }", selectorOfElement);
 	}
 
 	protected Object executeScript(Session session, String script,
@@ -154,13 +169,14 @@ public class BaseTest {
 
 	protected String cssSelectorOfElement(String selectorOfElement) {
 		session.evaluate(getScriptContent("cssSelectorOfElement.js"));
-		return (String) executeScript("function() { return cssSelectorOfElement(this); }",
-				selectorOfElement);
+		return (String) executeScript(
+				"function() { return cssSelectorOfElement(this); }", selectorOfElement);
 	}
 
 	protected String textOfElement(String selectorOfElement) {
 		session.evaluate(getScriptContent("getText.js"));
-		return (String) executeScript("function() { return getText(this);}", selectorOfElement);
+		return (String) executeScript("function() { return getText(this);}",
+				selectorOfElement);
 	}
 
 	protected static String getScriptContent(String scriptName) {
