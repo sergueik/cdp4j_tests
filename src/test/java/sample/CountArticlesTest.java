@@ -35,16 +35,19 @@ public class CountArticlesTest extends BaseTest {
 		System.err.println("url: " + session.getLocation());
 	}
 
+	// NOTE: unstable
 	@Test(enabled = true)
 	private void test1() {
-		Object[][] inputs = new Object[][] { { "junit", 100.0 }, { "testng", 30.0 },
-				{ "spock", 10.0 }, };
+		Object[][] inputs = new Object[][] { { "junit", 100.0 },
+				// { "testng", 30.0 },
+				// { "spock", 10.0 },
+		};
 		for (Object[] input : inputs) {
 			parseSearchResult(input[0].toString(),
 					Double.valueOf(input[1].toString()));
 			session.navigate("about:blank");
 			sleep(5000);
-			
+
 		}
 	}
 
