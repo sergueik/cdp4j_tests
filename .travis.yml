@@ -1,5 +1,6 @@
 language: java
 script: mvn test
+dist: xenial
 addons:
   apt:
     sources:
@@ -11,7 +12,8 @@ env:
 before_install:
   - 'export TRAVIS=true'
   # start your web application and listen on `localhost`
-  - 'google-chrome --headless --remote-debugging-port=9222 --disable-gpu http://localhost &'
+  #  https://docs.travis-ci.com/user/gui-and-headless-browsers/
+  - 'google-chrome-stable --headless --remote-debugging-port=9222 --disable-gpu http://localhost &'
 jdk:
   - oraclejdk8
 notifications:
