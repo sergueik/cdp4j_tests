@@ -1,13 +1,17 @@
 language: java
 script: mvn test
 addons:
-  firefox: '46.0'
+  apt:
+    sources:
+      - google-chrome
+    packages:
+      - google-chrome-stable
+env:
+  - TRAVIS=true
 before_install:
-  - 'export DISPLAY=:99.0'
   - 'export TRAVIS=true'
-  - 'sh -e /etc/init.d/xvfb start'
-after_script:
-  - 'sh -e /etc/init.d/xvfb stop'
+  # start your web application and listen on `localhost`
+  - 'google-chrome --headless --remote-debugging-port=9222 --disable-gpu http://localhost &'
 jdk:
   - oraclejdk8
 notifications:
