@@ -1,0 +1,71 @@
+#  http://stamm-wilbrandt.de/GraphvizFiddle/
+digraph G {
+  size = "20,15"
+  # rankdir = BT
+  fontname = "Verdana"
+  fontsize = 14
+  node [
+    fontname = "Verdana"
+    fontsize = 14
+    shape = "record"
+  ]
+
+  edge [
+    dir = normal
+    arrowhead = empty
+    fontname = "Verdana"
+    fontsize = 14
+  ]
+
+Session [
+  style = rounded
+  label = "{Session|+ activate : void\l+ addEventListener : void	\l+ captureScreenshot : byte*\l+ close : void	\l+ enableConsoleLog: Session\l+ enableDetailLog: Session\l+ enableNetworkLog: Session\l+ getCommand : Command\l+ getFrameId : String\l+ getId : String\l+ isConnected : boolean\l+ navigate : Session\l+ removeEventEventListener : void\l+ wait : Session\l+ waitDocumentReady : Session\l+ waitUntil : boolean\l}"
+]
+
+Navigator [
+  label = "{Navigator|+ back : Session\l+ clearCache : Session\l+ clearCookies : Session\l+ forward : Session\l+ getContent : Session\l+ getLocation : Session\l+ getPathname : String\l+ getQueryString : Map\l+ getTitle : String\l+ isDomReady : bool\l+ reload : Session\l+ setUserAgent : Session\l+ stop : Session\l  }"
+]
+
+JavaScript [
+  label = "{JavaScript|+ callFunction : T\l+ evaluate : Object\l+ getVariable : T\l+ setVariable : void\l}"
+]
+
+Keyboard [
+  label = "{Keyboard|+ getThis: Session\l+ sendBackspace: Session\l+ endDownArrow  : Session\l+ sendEnter  : Session\l+ sendEsc  : Session\l+ sendKeyCode: Session\l+ sendKeys: Session\l+ sendLeftArrow  : Session\l+ sendRightArrow  : Session\l+ sendTab  : Session\l+ sendUpArrow  : Session\l}"
+]
+
+Mouse [
+  label = "{Mouse|+ Click : Session\l}"
+]
+
+Dom [
+  label = "{Dom|+ clearOptions: Session\l+ focus: Session\l+ getAttribute: String\l+ getBoxModel: BoxModel\l+ getOuterHtml: String\l+ getSelectedIndex: int\l+ getText: String\l+ getThis: Session\l+ getValue: String\l+ isChecked: boolean\l+ isDisabled: boolean\l+ getOptions: List\l+ getAttributes: Map\l+ selectInputText: Session\l+ setAttribute: Session\l+ setChecked: Session\l+ setDisabled: Session\l+ setFiles: Session\l+ setSelectedIndex: Session\l+ setSelectedOptions: Session\l+ setValue: Session\l}"
+]
+
+Selector [
+  label = "{Selector|+ getNodeId : Integer\l+ getObjectId : String\l+ getObjectIds: List \l+ getObjectIdWithContext : String\l+ getProperty: Object\l+ getPropertyByObjectId: Object\l+ getPropertyDescriptor : PropertyDescriptor\l+ matches: boolean\l+ releaseObject : Session\l+ setProperty: void\l}"
+]
+
+subgraph cluster_0 {
+  style = invis ;
+  Session -> Dom;
+}
+
+subgraph cluster_1 {
+  style = invis;
+  Selector;
+}
+
+subgraph cluster_2 {
+  style = invis; 
+  Session ->  { Mouse;  Keyboard; } 
+}
+
+subgraph cluster_3 {
+  style = invis;
+  JavaScript;  Navigator;
+}
+
+
+Session -> { Navigator ; JavaScript ;  Selector }
+}
