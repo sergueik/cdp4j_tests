@@ -132,8 +132,9 @@ public class BaseTest {
 		RemoteObject result = null;
 		Object value = null;
 		try {
+			// NOTE: ObjectId must not be specified together with executionContextId
 			functionResult = session.getCommand().getRuntime().callFunctionOn(script,
-					objectId, null, null, null, null, null, null, nodeId, null);
+					objectId, null, null, null, null, null, null, null, null);
 			if (functionResult != null) {
 				result = functionResult.getResult();
 				if (result != null) {

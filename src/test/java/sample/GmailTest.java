@@ -24,6 +24,8 @@ public class GmailTest extends BaseTest {
 
 	private String baseURL = "https://www.google.com/gmail/about/#";
 	private String accountsURL = "https://accounts.google.com/signin/v2/identifier\\?continue=";
+	private String signingURL = "https://accounts.google.com/signin/";
+
 	// Alternatives (do not work)
 	// "//*[contains(text(),'Sign in')]"; // xpath
 	// "body > nav > div > a.gmail-nav__nav-link.gmail-nav__nav-link__sign-in"
@@ -66,7 +68,7 @@ public class GmailTest extends BaseTest {
 		// session.click(signInLink);
 
 		Predicate<Session> urlChange = session -> session.getLocation()
-				.matches(String.format("^%s.*", accountsURL));
+				.matches(String.format("^(?:%s|%s).*", accountsURL, signingURL));
 		session.waitUntil(urlChange, 1000, 100);
 		assertTrue(
 				// String.format("Unexpected title '%s'", row.getAttribute("role")),
@@ -81,6 +83,8 @@ public class GmailTest extends BaseTest {
 		// Inspect error messages
 		List<String> errMsg = session.getObjectIds(
 				"//*[contains (text(), \"Couldn't find your Google Account\")]");
+		highlight("//*[contains (text(), \"Couldn't find your Google Account\")]",
+				2000);
 		assertTrue(errMsg.size() > 0);
 	}
 
@@ -111,9 +115,9 @@ public class GmailTest extends BaseTest {
 		Predicate<Session> urlChange = session -> session.getLocation()
 				.matches(String.format("^%s.*", accountsURL));
 		session.waitUntil(urlChange, 1000, 100);
-		assertTrue(
-				// String.format("Unexpected title '%s'", row.getAttribute("role")),
-				session.getLocation().matches(String.format("^%s.*", accountsURL)));
+		// String.format("Unexpected title '%s'", row.getAttribute("role")),
+		assertTrue(session.getLocation()
+				.matches(String.format("^(?:%s|%s).*", accountsURL, signingURL)));
 
 		// Enter existing email id
 		enterData(identifier, "automationnewuser24@gmail.com");
@@ -148,11 +152,11 @@ public class GmailTest extends BaseTest {
 
 		// Wait for page url to change
 		Predicate<Session> urlChange = session -> session.getLocation()
-				.matches(String.format("^%s.*", accountsURL));
+				.matches(String.format("^(?:%s|%s).*", accountsURL, signingURL));
 		session.waitUntil(urlChange, 1000, 100);
-		assertTrue(
-				// String.format("Unexpected title '%s'", row.getAttribute("role")),
-				session.getLocation().matches(String.format("^%s.*", accountsURL)));
+		System.err.println("loginTest() Locatiion: " + session.getLocation());
+		assertTrue(session.getLocation()
+				.matches(String.format("^(?:%s|%s).*", accountsURL, signingURL)));
 
 		// TODO: examine it landed on https://accounts.google.com/AccountChooser
 
