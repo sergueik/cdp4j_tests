@@ -18,7 +18,8 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <cdp4j.version>2.1.5</cdp4j.version>
+    <!-- <cdp4j.version>2.1.5</cdp4j.version> -->
+    <cdp4j.version>2.2.0-SNAPSHOT</cdp4j.version>
     <commons-exec.version>1.3</commons-exec.version>
     <commons-io.version>2.5</commons-io.version>
     <commons-lang3.version>3.0.1</commons-lang3.version>
@@ -146,4 +147,10 @@
       </plugin>
     </plugins>
   </build>
+  <repositories>
+    <repository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </repository>
+  </repositories>
 </project>
