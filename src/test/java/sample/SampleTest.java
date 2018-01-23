@@ -21,7 +21,7 @@ import io.webfolder.cdp.type.runtime.RemoteObject;
 
 public class SampleTest {
 
-	@Ignore
+	// @Ignore
 	@Test
 	public void invalidUsernameTest() throws InterruptedException, IOException {
 
@@ -34,31 +34,30 @@ public class SampleTest {
 				"Mozilla/5.0 (Windows NT 6.1) AppleWebKit/534.34 (KHTML, like Gecko) PhantomJS/1.9.7 Safari/534.34");
 
 		// navigate to start screen
-		session.navigate("https://www.google.com/gmail/about/#");
+		session.navigate("http://www.store.demoqa.com");
 
-		// click sign-in link
-		executeScript(session, "function() { this.click(); }",
-				"a[class *= 'gmail-nav__nav-link__sign-in']");
+		sleep(5000);
+		// go to login page
 
-		// wait till switched to sign in page
+		// session.click("#account > a");
+		executeScript(session, "function() { this.click(); }", "#account > a");
 		session.waitUntil(
-				s -> s.getLocation().matches("https://accounts.google.com/signin/"),
+				s -> s.getLocation()
+						.matches("http://store.demoqa.com/products-page/your-account/"),
 				1000, 100);
-		session.waitUntil(s -> isVisible(s, "#identifierId"), 1000, 100);
 
-		// enter a non existing user id
+		// log in
+		sleep(5000);
+		session.focus("#log");
+		session.sendKeys("testuser_3");
+		session.focus("#pwd");
+		session.sendKeys("Test@123");
+		executeScript(session, "function() { this.click(); }", "#login");
 
-		session.focus("#identifierId");
-		session.sendKeys("non existing user");
-
-		// Click on next button
-
-		executeScript(session, "function() { this.click(); }",
-				"//*[@id='identifierNext']/content/span[contains(text(),'Next')]");
-
+		sleep(5000);
 		// confirm the error message is displayed
 		List<String> errMsg = session.getObjectIds(
-				"//*[contains (text(), \"Couldn't find your Google Account\")]");
+				"//*[contains (text(), \"The password you entered for the username testuser_3 is incorrect\")]");
 		assertTrue(errMsg.size() > 0);
 
 		session.stop();
@@ -98,4 +97,13 @@ public class SampleTest {
 						selectorOfElement));
 	}
 
+	public void sleep(Integer seconds) {
+		long secondsLong = (long) seconds;
+		try {
+			Thread.sleep(secondsLong);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+	
 }
