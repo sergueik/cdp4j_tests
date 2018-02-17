@@ -4,13 +4,16 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.IntStream;
 
+import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
+// import org.testng.Assert;
 
 import io.webfolder.cdp.Launcher;
-import io.webfolder.cdp.session.Session;
 import io.webfolder.cdp.session.SessionFactory;
+import io.webfolder.cdp.session.Session;
 import io.webfolder.cdp.type.runtime.CallFunctionOnResult;
 import io.webfolder.cdp.type.runtime.RemoteObject;
 
@@ -25,6 +28,8 @@ public class SampleTest {
 	@Test
 	public void invalidUsernameTest() throws InterruptedException, IOException {
 
+		int waitTimeout = 5000;
+		int pollingInterval = 500;
 		Launcher launcher = new Launcher();
 		SessionFactory factory = launcher.launch();
 		Session session = factory.create();
@@ -36,30 +41,49 @@ public class SampleTest {
 		// navigate to start screen
 		session.navigate("http://www.store.demoqa.com");
 
-		sleep(5000);
 		// go to login page
-
+		session.waitUntil(s -> s.getObjectIds("#account > a").size() > 0,
+				waitTimeout, pollingInterval);
 		// session.click("#account > a");
 		executeScript(session, "function() { this.click(); }", "#account > a");
 		session.waitUntil(
 				s -> s.getLocation()
 						.matches("http://store.demoqa.com/products-page/your-account/"),
-				1000, 100);
+				waitTimeout, pollingInterval);
 
 		// log in
-		sleep(5000);
+		session.waitUntil(s -> s.getObjectIds("#log").size() > 0, waitTimeout,
+				pollingInterval);
 		session.focus("#log");
 		session.sendKeys("testuser_3");
 		session.focus("#pwd");
 		session.sendKeys("Test@123");
 		executeScript(session, "function() { this.click(); }", "#login");
 
-		sleep(5000);
 		// confirm the error message is displayed
-		List<String> errMsg = session.getObjectIds(
-				"//*[contains (text(), \"The password you entered for the username testuser_3 is incorrect\")]");
-		assertTrue(errMsg.size() > 0);
+		session.waitUntil(_session -> _session
+				.getObjectIds(
+						"//form[@id='ajax_loginform']/p[@class='response']/text()")
+				.size() > 0, waitTimeout, pollingInterval);
 
+		IntStream
+				.rangeClosed(1,
+						session
+								.getObjectIds(
+										"//form[@id='ajax_loginform']/p[@class='response']/*")
+								.size())
+				.forEach(pos -> {
+					// TODO: cannot convert from String to int to map to stream of
+					// response texts
+					String response = session.getText(String.format(
+							"//form[@id='ajax_loginform']/p[@class='response']/*[%d]", pos));
+					System.err.println(response);
+				});
+		assertTrue(session
+				.getText("//form[@id='ajax_loginform']/p[@class='response']").matches(
+						".*The password you entered for the username testuser_3 is incorrect.*"));
+		highlight("//form[@id='ajax_loginform']/p[@class='response']", session,
+				1000);
 		session.stop();
 		session.close();
 
@@ -105,5 +129,15 @@ public class SampleTest {
 			e.printStackTrace();
 		}
 	}
-	
+
+	protected void highlight(String selectorOfElement, Session session,
+			int interval) {
+		executeScript(session,
+				"function() { this.style.border='3px solid yellow'; }",
+				selectorOfElement);
+		sleep(interval);
+		executeScript(session, "function() { this.style.border=''; }",
+				selectorOfElement);
+	}
+
 }
