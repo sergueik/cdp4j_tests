@@ -26,6 +26,8 @@ public class BaseTest {
 
 	public String baseURL = "about:blank";
 	public Session session;
+	int waitTimeout = 5000;
+	int pollingInterval = 500;
 
 	@BeforeClass
 	public void beforeClass() throws IOException {
@@ -78,18 +80,18 @@ public class BaseTest {
 	public void afterTest() {
 	}
 
-	protected void sleep(long seconds) {
+	protected void sleep(long timeoutSeconds) {
 		try {
-			Thread.sleep(seconds);
+			Thread.sleep(timeoutSeconds);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 	}
 
-	protected void sleep(Integer seconds) {
-		long secondsLong = (long) seconds;
+	protected void sleep(Integer timeoutSeconds) {
+		long timeoutSecondsLong = (long) timeoutSeconds;
 		try {
-			Thread.sleep(secondsLong);
+			Thread.sleep(timeoutSecondsLong);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -169,7 +171,9 @@ public class BaseTest {
 	}
 
 	protected String cssSelectorOfElement(String selectorOfElement) {
-		session.evaluate(getScriptContent("cssSelectorOfElement.js"));
+
+		String cssSelectorOfElement = getScriptContent("cssSelectorOfElement.js");
+		session.evaluate(cssSelectorOfElement);
 		return (String) executeScript(
 				"function() { return cssSelectorOfElement(this); }", selectorOfElement);
 	}
@@ -184,6 +188,7 @@ public class BaseTest {
 		try {
 			final InputStream stream = BaseTest.class.getClassLoader()
 					.getResourceAsStream(scriptName);
+
 			final byte[] bytes = new byte[stream.available()];
 			stream.read(bytes);
 			// System.err.println("Loaded:\n" + new String(bytes, "UTF-8"));
