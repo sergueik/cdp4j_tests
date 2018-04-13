@@ -70,6 +70,13 @@ public class GmailTest extends BaseTest {
 		Predicate<Session> urlChange = session -> session.getLocation()
 				.matches(String.format("^(?:%s|%s).*", accountsURL, signingURL));
 		session.waitUntil(urlChange, 1000, 100);
+
+		session.waitUntil(new Predicate<Session>() {
+			public boolean test(Session session) {
+				return session.getLocation().matches(String.format("^%s.*", baseURL));
+			}
+		}, 1000, 100);
+
 		assertTrue(
 				// String.format("Unexpected title '%s'", row.getAttribute("role")),
 				session.getLocation().matches(String.format("^%s.*", accountsURL)));
@@ -151,9 +158,10 @@ public class GmailTest extends BaseTest {
 		// https://github.com/TsvetomirSlavov/JavaScriptForSeleniumMyCollection
 
 		// Wait for page url to change
-		Predicate<Session> urlChange = session -> session.getLocation()
-				.matches(String.format("^(?:%s|%s).*", accountsURL, signingURL));
-		session.waitUntil(urlChange, 1000, 100);
+		session.waitUntil(
+				s -> s.getLocation()
+						.matches(String.format("^(?:%s|%s).*", accountsURL, signingURL)),
+				1000, 100);
 		System.err.println("loginTest() Locatiion: " + session.getLocation());
 		assertTrue(session.getLocation()
 				.matches(String.format("^(?:%s|%s).*", accountsURL, signingURL)));
