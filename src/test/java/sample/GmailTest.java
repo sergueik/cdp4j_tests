@@ -14,14 +14,24 @@ import org.testng.annotations.Test;
 
 import io.webfolder.cdp.session.Session;
 import io.webfolder.cdp.exception.CommandException;
+import io.webfolder.cdp.exception.ElementNotFoundException;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+/**
+ * Selected test scenarios for CDP
+ * @author: Serguei Kouzmine (kouzmine_serguei@yahoo.com)
+ */
+
 public class GmailTest extends BaseTest {
 
+	private String signOutButton = String.format(
+			"//a[contains(text(), '%s')][contains(@href, '%s')]", "Sign out",
+			"https://mail.google.com/mail/logout");
+	private String signOutButtonFallback = "#gb_71";
 	private String baseURL = "https://www.google.com/gmail/about/#";
 	private String accountsURL = "https://accounts.google.com/signin/v2/identifier\\?continue=";
 	private String signingURL = "https://accounts.google.com/signin/";
@@ -36,9 +46,6 @@ public class GmailTest extends BaseTest {
 	private String passwordInput = "#password input"; // css
 	private String passwordNextButton = "//*[@id='passwordNext']/content/span[contains(text(),'Next')]"; // xpath
 	private String profileImage = "//a[contains(@href,'https://accounts.google.com/SignOutOptions')]"; // xpath
-	// "//*[@id='gb']/div[1]/div[1]/div[2]/div[4]/div[1]/a/span"
-	private String signOutButton = "//div[@aria-label='Account Information']//a[contains(text(), 'Sign out')][contains(@href, 'https://accounts.google.com/Logout?')]"; // xpath
-	// ".//*[@id='gb_71']"
 
 	@BeforeClass
 	public void beforeClass() throws IOException {
@@ -52,12 +59,19 @@ public class GmailTest extends BaseTest {
 		session.navigate(baseURL);
 
 		// Wait for page url to change
+
 		Predicate<Session> urlChange = session -> session.getLocation()
 				.matches(String.format("^%s.*", baseURL));
 		session.waitUntil(urlChange, 1000, 100);
+		session.waitUntil(new Predicate<Session>() {
+			public boolean test(Session session) {
+				return session.getLocation().matches(String.format("^%s.*", baseURL));
+			}
+		}, 1000, 100);
+
 	}
 
-	@Test(priority = 1, enabled = true)
+	@Test(priority = 1, enabled = false)
 	public void invalidUsernameTest() throws InterruptedException, IOException {
 
 		// Arrange
@@ -70,12 +84,6 @@ public class GmailTest extends BaseTest {
 		Predicate<Session> urlChange = session -> session.getLocation()
 				.matches(String.format("^(?:%s|%s).*", accountsURL, signingURL));
 		session.waitUntil(urlChange, 1000, 100);
-
-		session.waitUntil(new Predicate<Session>() {
-			public boolean test(Session session) {
-				return session.getLocation().matches(String.format("^%s.*", baseURL));
-			}
-		}, 1000, 100);
 
 		assertTrue(
 				// String.format("Unexpected title '%s'", row.getAttribute("role")),
@@ -95,7 +103,7 @@ public class GmailTest extends BaseTest {
 		assertTrue(errMsg.size() > 0);
 	}
 
-	@Test(priority = 2, enabled = true)
+	@Test(priority = 2, enabled = false)
 	public void invalidPasswordTest() {
 
 		// Arrange
@@ -202,19 +210,32 @@ public class GmailTest extends BaseTest {
 		System.err.println("Click on profile image");
 		// Click on profile image
 		if (session.waitUntil(o -> o.matches(profileImage), 1000, 10)) {
+			System.err.println("Select profile image");
 			click(profileImage);
+			// Wait until form is rendered
+			session.waitUntil(o -> {
+				return (boolean) o.evaluate("return document.readyState == 'complete'");
+			}, 1000, 100);
+		} else {
+			System.err.println("Profile image not found");
 		}
-
-		// Wait until form is rendered
-		session.waitUntil(o -> {
-			return (boolean) o.evaluate("return document.readyState == 'complete'");
-		}, 1000, 100);
-
 		// Sign out
 		System.err.println("Sign out");
 
-		highlight(signOutButton, 100);
+		System.err
+				.println("Sign out button text: " + session.getText(signOutButton));
+		// TODO: testOfElement does not work
+		// System.err.println("Sign out button text: " +
+		// textOfElement(signOutButton));
+		highlight(signOutButton, 1000);
 		click(signOutButton);
+		try {
+			session.click(signOutButton);
+			sleep(60000);
+		} catch (ElementNotFoundException e) {
+			session.click(signOutButtonFallback);
+			sleep(60000);
+		}
 	}
 
 	private Boolean checkPage() {
