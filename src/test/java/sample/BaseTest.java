@@ -38,8 +38,6 @@ public class BaseTest {
 			session = factory.create();
 			sleep(1000);
 			// install extensions
-			session.installSizzle();
-			session.useSizzle();
 			session.clearCookies();
 			session.clearCache();
 			session.setUserAgent(
