@@ -213,7 +213,7 @@ cssSelectorOfElement = function(element) {
 			System.err.println("checkbox value not found");
 		}
 		String checkBoxElementId = null;
-    
+
 		// Act
     // combine the selectors
 		String checkBoxElementSelector = String.format(
@@ -290,7 +290,16 @@ The following code fragments are yet unclear how to implement:
 
 * Alerts
 
+
+NOTE:
+
+The verison __3.0.4__ of `cd4pj.jar` suffers from the following error:
+```sh
+java.lang.UnsatisfiedLinkError: io.webfolder.cdp.internal.winp.Native.getProcessId(I)I
+```
+
 ### See also
   * [stackoverflow](https://stackoverflow.com/questions/tagged/google-chrome-devtools)
+  * [cypress](https://github.com/cypress-io/cypress)
 ### Author
 [Serguei Kouzmine](kouzmine_serguei@yahoo.com)
