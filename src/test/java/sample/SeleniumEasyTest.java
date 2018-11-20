@@ -1,5 +1,7 @@
 package sample;
 
+import org.testng.Assert;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -8,11 +10,15 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.testng.IAttributes;
+import org.testng.ITestContext;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import org.testng.TestRunner;
 
 import io.webfolder.cdp.exception.CommandException;
 
@@ -27,6 +33,17 @@ public class SeleniumEasyTest extends BaseTest {
 	}
 	private static boolean status = false;
 
+	@BeforeMethod
+	public void beforeMethod() {
+		System.err.println("Navigate to URL: " + baseURL);
+		session.navigate(baseURL);
+		session.waitDocumentReady(10000);
+		session.waitUntil(s -> s.getLocation().equals(baseURL));
+		session.waitUntil(o -> isVisible("#site-name > a"), 1000, 100);
+		// Exception in thread "cdp4j-15" io.webfolder.cdp.exception.CdpException:
+		// Unable to acquire lock
+	}
+
 	@AfterMethod
 	public void AfterMethod(ITestResult result) {
 		if (verificationErrors.length() != 0) {
@@ -35,23 +52,47 @@ public class SeleniumEasyTest extends BaseTest {
 		}
 		session.navigate("about:blank");
 		super.afterMethod();
+
 	}
 
-	@BeforeClass
-	public void beforeClass() throws IOException {
-		super.beforeClass();
-		assertThat(session, notNullValue());
+	// This test will run 2 times
+	@Test(dataProvider = "xpaths")
+	public void testXpathChecker(String xpathTemplate) {
+		for (String name : employees.keySet()) {
+			String xpath = String.format(xpathTemplate, name);
+			status = false;
+			System.err.println("Testing xpath: " + xpath);
+			try {
+				status = session.matches(xpathTemplate, name);
+			} catch (CommandException e) {
+				verificationErrors.append(e.toString());
+				System.err.println("Failed with XPath: " + xpathTemplate + "," + name
+						+ "\n" + e.toString());
+			}
+			try {
+				status = session.matches(xpath);
+			} catch (CommandException e) {
+				verificationErrors.append(e.toString());
+				System.err.println("Failed with XPath: " + xpath + "\n" + e.toString());
+			}
+			String position = (String) session.getProperty(xpath, "innerHTML");
+			assertThat(position, is(employees.get(name)));
+			System.err.println(
+					String.format("Successfully verifies: %s: %s", name, position));
+		}
 	}
 
-	@BeforeMethod
-	public void beforeMethod() {
-		System.err.println("Navigate to URL: " + baseURL);
-		session.navigate(baseURL);
-		session.waitDocumentReady(10000);
-		session.waitUntil(s -> s.getLocation().equals(baseURL));
-		session.waitUntil(o -> isVisible("#site-name > a"), 1000, 100);
+	@DataProvider(name = "xpaths", parallel = false)
+	public Object[][] dataProviderInline() {
+		return new Object[][] {
+				// http://zvon.org/xxl/XPathTutorial/Output/example15.html
+				{ "//*[@id=\"example\"]/tbody/tr/td[@data-search=\"%s\"]/following-sibling::td[1]" },
+				// https://stackoverflow.com/questions/10247978/xpath-with-multiple-conditions
+				{ "//*[@id=\"example\"]/tbody/tr[./td[@data-search=\"%s\"]]/td[2]" }, };
 	}
 
+	// the following test methods have identical code. 
+	// Kept for the case terstNG data provider parameterized tests fail
 	// http://zvon.org/xxl/XPathTutorial/Output/example15.html
 	@Test(enabled = true)
 	public void followingSiblingCellLocatorTest() {
@@ -76,7 +117,8 @@ public class SeleniumEasyTest extends BaseTest {
 			String position = (String) session.getProperty(positionSearchXpath,
 					"innerHTML");
 			assertThat(position, is(employees.get(name)));
-			System.err.println(String.format("Successfully verifies: %s: %s", name, position));
+			System.err.println(
+					String.format("Successfully verifies: %s: %s", name, position));
 		}
 	}
 
@@ -105,7 +147,8 @@ public class SeleniumEasyTest extends BaseTest {
 				String position = (String) session.getProperty(positionSearchXpath,
 						"innerHTML");
 				assertThat(position, is(employees.get(name)));
-				System.err.println(String.format("Successfully verifies: %s: %s", name, position));
+				System.err.println(
+						String.format("Successfully verifies: %s: %s", name, position));
 			}
 		}
 	}
