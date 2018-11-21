@@ -3,6 +3,8 @@ package sample;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -199,4 +201,15 @@ public class BaseTest {
 	protected void click(String selector) {
 		executeScript(session, "function() { this.click(); }", selector);
 	}
+
+	protected static String getPageContent(String pagename) {
+		try {
+			URI uri = BaseTest.class.getClassLoader().getResource(pagename).toURI();
+			System.err.println("Testing: " + uri.toString());
+			return uri.toString();
+		} catch (URISyntaxException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 }
