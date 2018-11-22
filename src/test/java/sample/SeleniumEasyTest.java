@@ -1,24 +1,16 @@
 package sample;
 
-import org.testng.Assert;
-
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.testng.IAttributes;
-import org.testng.ITestContext;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import org.testng.TestRunner;
 
 import io.webfolder.cdp.exception.CommandException;
 
@@ -89,67 +81,5 @@ public class SeleniumEasyTest extends BaseTest {
 				{ "//*[@id=\"example\"]/tbody/tr/td[@data-search=\"%s\"]/following-sibling::td[1]" },
 				// https://stackoverflow.com/questions/10247978/xpath-with-multiple-conditions
 				{ "//*[@id=\"example\"]/tbody/tr[./td[@data-search=\"%s\"]]/td[2]" }, };
-	}
-
-	// the following test methods have identical code. 
-	// Kept for the case terstNG data provider parameterized tests fail
-	// http://zvon.org/xxl/XPathTutorial/Output/example15.html
-	@Test(enabled = true)
-	public void followingSiblingCellLocatorTest() {
-
-		String xpathTemplate = "//*[@id=\"example\"]/tbody/tr/td[@data-search=\"%s\"]/following-sibling::td[1]";
-		for (String name : employees.keySet()) {
-			status = false;
-			String positionSearchXpath = String.format(xpathTemplate, name);
-			System.err.println("Testing xpath: " + positionSearchXpath);
-			try {
-				status = session.matches(xpathTemplate, name);
-			} catch (CommandException e) {
-				verificationErrors.append(e.toString());
-				System.err.println(e.toString());
-			}
-			try {
-				status = session.matches(positionSearchXpath);
-			} catch (CommandException e) {
-				verificationErrors.append(e.toString());
-				System.err.println(e.toString());
-			}
-			String position = (String) session.getProperty(positionSearchXpath,
-					"innerHTML");
-			assertThat(position, is(employees.get(name)));
-			System.err.println(
-					String.format("Successfully verifies: %s: %s", name, position));
-		}
-	}
-
-	// https://stackoverflow.com/questions/10247978/xpath-with-multiple-conditions
-	@Test(enabled = true)
-	public void complexConditionCellLocatorTest() {
-
-		String xpathTemplate = "//*[@id=\"example\"]/tbody/tr[./td[@data-search=\"%s\"]]/td[2]";
-		for (String name : employees.keySet()) {
-			String positionSearchXpath = String.format(xpathTemplate, name);
-			status = false;
-			System.err.println("Testing xpath: " + positionSearchXpath);
-			try {
-				status = session.matches(xpathTemplate, name);
-			} catch (CommandException e) {
-				verificationErrors.append(e.toString());
-				System.err.println(e.toString());
-			}
-			try {
-				status = session.matches(positionSearchXpath);
-			} catch (CommandException e) {
-				verificationErrors.append(e.toString());
-				System.err.println(e.toString());
-			}
-			if (status) {
-				String position = (String) session.getProperty(positionSearchXpath,
-						"innerHTML");
-				assertThat(position, is(employees.get(name)));
-				System.err.println(
-						String.format("Successfully verifies: %s: %s", name, position));
-			}
-		}
 	}
 }
