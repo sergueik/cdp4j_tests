@@ -152,11 +152,7 @@
     <repository>
       <id>ossrh_snapshots</id>
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-      <!-- 
-https://oss.sonatype.org/service/local/staging/deploy/maven2/io/webfolder/cdp4j/2.2.5-SNAPSHOT/cdp4j-2.2.5-SNAPSHOT.pom
-2.2.5-SNAPSHOT
-Access Denied
-Please login before attempting further requests.  -->
+      <!-- can download cdp4j snapshot jars e.g. https://oss.sonatype.org/service/local/repo_groups/staging/content/io/webfolder/cdp4j/3.0.7-SNAPSHOT/cdp4j-3.0.7-20180902.205820-1-sources.jar via sonatype nexus repositository manager - a valid login is required -->
     </repository>
     <repository>
       <id>ossrh</id>
