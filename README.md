@@ -298,8 +298,59 @@ The verison __3.0.4__ of `cd4pj.jar` suffers from the following error:
 java.lang.UnsatisfiedLinkError: io.webfolder.cdp.internal.winp.Native.getProcessId(I)I
 ```
 
+
 ### See also
   * [stackoverflow](https://stackoverflow.com/questions/tagged/google-chrome-devtools)
   * [cypress](https://github.com/cypress-io/cypress)
+
+    
+#### CDP .Net Usage with Powershell (NOTE: not verified, really)
+
+#### Prerequisites
+
+The following steps were done on 32 bit Windows 7 Vagrant Box
+
+Install:
+
+  * [CLR Univeral runtime](http://www.microsoft.com/en-us/download/confirmation.aspx?id=49077), for windows 7 32 bit, distributed as a Windows 7  Update for (KB2999226)
+  * .NET Core version of powershell from github  [Powershell 6 Core](https://github.com/PowerShell/PowerShell)
+  * Dotnet Core [v 2.1.x runtime](https://dotnet.microsoft.com/download/thank-you/dotnet-runtime-2.1.9-windows-x86-installer)
+Download and unzip the nuget packages:
+
+  * [BaristaLabs.ChromeDevTools.Runtime.dll](https://www.nuget.org/api/v2/package/BaristaLabs.ChromeDevTools.Runtime/70.0.3538.77)
+  * [Tera.ChromeDevTools.dll](https://www.nuget.org/api/v2/package/Tera.ChromeDevTools/1.0.2)
+
+In Powershell 6 console load assemblies
+```powershell
+$dllPath = "C:\Users\vagrant\Downloads\BaristaLabs.ChromeDevTools.Runtime.dll"
+[System.Reflection.Assembly]::LoadFrom($dllPath)
+```
+```powershell
+$dllPath = "C:\Users\vagrant\Downloads\Tera.ChromeDevTools.dll"
+$assembly = [System.Reflection.Assembly]::LoadFrom($dllPath);
+
+$assemblyType = $assembly.GetTypes()[0]
+$assemblyType.GetMethods() | select-object -property Name,Module
+```
+
+Start chrome with debugging port enabled
+```cmd
+"c:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222
+```
+- the browser will be visible
+
+Execrise creating sessions:
+```powershell
+$chrome = new-object Tera.ChromeDevTools.Chrome(9222,$falsse)
+$session = $chrome.CreateNewSession()
+```
+This is where one may get stuck with callback signatures.
+
+All chrome commands should be asynchronuous, therefore a simple
+```powershell
+$session.Navigate("http://www.google.com")
+```
+does not work, and  `$session.RunSynchronously()` needs arguments.
+
 ### Author
 [Serguei Kouzmine](kouzmine_serguei@yahoo.com)
