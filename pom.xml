@@ -18,7 +18,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <cdp4j.version>3.0.8</cdp4j.version>
+    <cdp4j.version>3.0.9</cdp4j.version>
     <commons-exec.version>1.3</commons-exec.version>
     <commons-io.version>2.5</commons-io.version>
     <commons-lang3.version>3.0.1</commons-lang3.version>
@@ -152,7 +152,7 @@
     <repository>
       <id>ossrh_snapshots</id>
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-      <!-- can download cdp4j snapshot jars e.g. https://oss.sonatype.org/service/local/repo_groups/staging/content/io/webfolder/cdp4j/3.0.7-SNAPSHOT/cdp4j-3.0.7-20180902.205820-1-sources.jar via sonatype nexus repositository manager - a valid login is required -->
+      <!-- can download cdp4j snapshot jars e.g. https://oss.sonatype.org/service/local/repo_groups/staging/content/io/webfolder/cdp4j/3.0.7-SNAPSHOT/cdp4j-3.0.7-20180902.205820-1-sources.jar via sonatype nexus repositository manager https://oss.sonatype.org/#view-repositories;staging~browsestorage - a valid login is required -->
     </repository>
     <repository>
       <id>ossrh</id>
