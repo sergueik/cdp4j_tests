@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<!-- 使用映射器接口实现类的完全限定类名 -->
+<mappers>
+	<mapper class="mappings.MiaoBoLiveMapper" />
+</mappers>
+
