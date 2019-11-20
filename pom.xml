@@ -4,7 +4,7 @@
   <groupId>sample</groupId>
   <artifactId>cdp4j_test</artifactId>
   <packaging>jar</packaging>
-  <version>1.3-SNAPSHOT</version>
+  <version>1.4-SNAPSHOT</version>
   <name>app</name>
   <url>http://maven.apache.org</url>
   <developers>
@@ -18,7 +18,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <cdp4j.version>3.0.12</cdp4j.version>
+    <cdp4j.version>3.0.14</cdp4j.version>
     <commons-exec.version>1.3</commons-exec.version>
     <commons-io.version>2.5</commons-io.version>
     <commons-lang3.version>3.0.1</commons-lang3.version>
