@@ -2,10 +2,12 @@ package sample;
 
 import static org.testng.Assert.assertTrue;
 
-import java.io.IOException;
-import java.util.stream.IntStream;
-
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import java.io.IOException;
+
+import java.util.stream.IntStream;
 
 import io.webfolder.cdp.Launcher;
 import io.webfolder.cdp.session.Session;

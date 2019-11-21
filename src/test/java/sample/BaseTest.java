@@ -224,7 +224,6 @@ public class BaseTest {
 		data.add(text);
 		try {
 			executeScript(String.format("function() { return setValue(this, '%s');}", text), selectorOfElement, data);
-			err.println("done...");
 		} catch (Exception e) {
 			err.println("Ignored: " + e.toString());
 		}

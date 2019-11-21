@@ -12,6 +12,7 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import static org.hamcrest.core.StringContains.containsString;
 
 // http://tutorials.jenkov.com/java-util-concurrent/countdownlatch.html
 
@@ -43,13 +44,20 @@ public class SetTextTest extends BaseTest {
 
 		// Act
 		fastSetText(selector, text);
+
+		// Assert
+		// NOTE: session.getAttribute appears unable to detect the value we just entered
 		String result = session.getAttribute(selector, "value");
 		Assert.assertEquals(result, null);
 		assertThat(result, nullValue());
 
-		// Assert
-		// session.getAttribute appears unable to detect the valuewe just entered
-		// Assert.assertEquals(result, text);
+		// NOTE: textOfElement "custom method" also appears unable to detect the value
+		// we just entered
+		result = textOfElement(selector);
+		Assert.assertEquals(result, "");
+
+		result = (String) executeScript("function() { return this.value;}", selector);
+		Assert.assertEquals(result, text);
 	}
 
 	@Test(enabled = true)
@@ -64,7 +72,10 @@ public class SetTextTest extends BaseTest {
 		fastSetText(selector, text);
 
 		// Assert
-		sleep(5000);
+		sleep(2000);
+		String result = (String) executeScript("function() { return this.value;}", selector);
+		assertThat(result, containsString("Lorem ipsum"));
+
 	}
 
 	@Test(enabled = true)
