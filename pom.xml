@@ -4,7 +4,7 @@
   <groupId>sample</groupId>
   <artifactId>cdp4j_test</artifactId>
   <packaging>jar</packaging>
-  <version>1.4-SNAPSHOT</version>
+  <version>1.5-SNAPSHOT</version>
   <name>app</name>
   <url>http://maven.apache.org</url>
   <developers>

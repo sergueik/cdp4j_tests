@@ -4,11 +4,13 @@ import static java.lang.System.err;
 
 import java.io.IOException;
 import java.io.InputStream;
+
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -36,10 +38,26 @@ public class BaseTest {
 	public Session session;
 	int waitTimeout = 5000;
 	int pollingInterval = 500;
+	private static final boolean useChromium = Boolean.parseBoolean(getEnvWithDefault("USE_CHROMIUM", "false"));
+
+	public static String getEnvWithDefault(String name, String defaultValue) {
+		String value = System.getenv(name);
+		if (value == null || value.length() == 0) {
+			value = defaultValue;
+
+		}
+		return value;
+	}
 
 	@BeforeClass
 	public void beforeClass() throws IOException {
 		Launcher launcher = new Launcher();
+		if (useChromium) {
+			// which chromium-browser
+			java.lang.System.setProperty("chrome_binary", "/usr/bin/chromium-browser");
+		}
+		// at io.webfolder.cdp.Launcher.internalLaunch(Launcher.java:211)
+
 		SessionFactory factory = launcher.launch();
 		sleep(1000);
 		try {
