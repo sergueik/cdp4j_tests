@@ -11,7 +11,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-
+import java.util.Arrays;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterTest;
@@ -58,7 +58,7 @@ public class BaseTest {
 		}
 		// at io.webfolder.cdp.Launcher.internalLaunch(Launcher.java:211)
 
-		SessionFactory factory = launcher.launch();
+		SessionFactory factory = launcher.launch(Arrays.asList("--remote-debugging-port=9222", "--disable-gpu", "--headless", "--window-size=1200x800"));
 		sleep(1000);
 		try {
 			session = factory.create();
