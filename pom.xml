@@ -19,7 +19,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <cdp4j-maven.version>3.0.15</cdp4j-maven.version>
-    <cdp4j-github.version>4.2.1</cdp4j-github.version>
+    <cdp4j-github.version>4.2.2</cdp4j-github.version>
     <cdp4j-github.url>https://github.com/webfolderio/cdp4j/releases/download/${cdp4j-github.version}/cdp4j-${cdp4j-github.version}.jar</cdp4j-github.url>
     <commons-exec.version>1.3</commons-exec.version>
     <commons-io.version>2.5</commons-io.version>
@@ -28,7 +28,7 @@
     <java.version>1.8</java.version>
     <json.version>20170516</json.version>
     <winp.version>1.26</winp.version>
-    <log4j.version>2.5</log4j.version>
+    <log4j.version>2.7</log4j.version>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <maven-compiler-plugin.version>3.6.1</maven-compiler-plugin.version>
