@@ -272,7 +272,7 @@ use the environment `USE_CHROMIUM`:
 export USE_CHROMIUM=true
 mvn test
 ```
-if the tests massively fail and the browser remain launched check if after the beginning of the test run the following url 
+if the tests massively fail and the browser remain launched check if after the beginning of the test run the following url
 ```sh
 http://127.0.0.1:9222/json/version
 ```
@@ -306,8 +306,8 @@ java.lang.UnsatisfiedLinkError: io.webfolder.cdp.internal.winp.Native.getProcess
   * Latest ["tip-of-tree"](https://chromedevtools.github.io/debugger-protocol-viewer/tot/) release CDP protocol spec
   * [stackoverflow](https://stackoverflow.com/questions/tagged/google-chrome-devtools)
   * [cypress](https://github.com/cypress-io/cypress)
+  * utility to [convert html selected into pdf](https://github.com/itxwnet/cdp4j-chrome-html2pdf) using CDP4j under the hood (NOTE: uses unpublished  parent project and dependencies, challenge to build)
 
-    
 #### CDP .Net Usage with Powershell (NOTE: not verified, really)
 
 #### Prerequisites
@@ -354,7 +354,13 @@ All chrome commands should be asynchronuous, therefore a simple
 ```powershell
 $session.Navigate("http://www.google.com")
 ```
-does not work, and  `$session.RunSynchronously()` needs arguments.
+does not work, and `$session.RunSynchronously()` needs arguments.
+
+### See Also:
+
+  * intro to [headless chrome](https://developers.google.com/web/updates/2017/04/headless-chrome)
+   * Selenium 3.x CDP Extender [clone project](https://github.com/sergueik/cdp_webdriver) using WebSockets ( the upstream project [sahajamit/chrome-devtools-webdriver-integration](https://github.com/sahajamit/chrome-devtools-webdriver-integration) - has become somewhat stale end eventually stopped in Dec 2019) - test scenarios practicing Java accessing [Chrome Devtools API](https://chromedevtools.github.io/devtools-protocol) during Selenium test without upgrading the Selenium driver to release __4__
+  * [Selenium CDP](https://github.com/sergueik/selenium_cdp) project demonstrating hundreds of test scenarions exercising the __Chrome Devtools API__  with Selenium driver release __4__ 
 
 ### Author
 [Serguei Kouzmine](kouzmine_serguei@yahoo.com)
